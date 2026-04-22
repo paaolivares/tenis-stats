@@ -24,11 +24,12 @@
     --radius-sm: 8px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
+  html { background: var(--bg); }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   
-  #app { height: 100vh; height: -webkit-fill-available; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; }
   
-  .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px); }
+  .screen { display: none; flex-direction: column; min-height: 100vh; padding: env(safe-area-inset-top, 16px) 16px max(env(safe-area-inset-bottom, 16px), 24px); }
   .screen.active { display: flex; }
 
   /* HEADER */
