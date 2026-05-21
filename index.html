@@ -114,6 +114,17 @@
   .bs-col-set { width: 28px; text-align: center; font-size: 9px; color: rgba(255,255,255,0.25); font-weight: 600; letter-spacing: 0.05em; }
   .bs-col-game { width: 52px; text-align: center; font-size: 9px; color: rgba(255,255,255,0.25); font-weight: 600; letter-spacing: 0.05em; }
 
+  /* PASSWORD SCREEN */
+  .pwd-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; padding: 24px; }
+  .pwd-logo { font-size: 52px; margin-bottom: 16px; }
+  .pwd-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .pwd-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+  .pwd-input { background: var(--surface2); border: 1px solid rgba(0,212,160,0.3); border-radius: var(--radius); padding: 12px 16px; color: var(--text); font-size: 16px; font-family: 'DM Sans', sans-serif; width: 100%; max-width: 280px; text-align: center; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .pwd-input:focus { outline: none; border-color: var(--accent); }
+  .pwd-btn { background: var(--accent); color: #000; border: none; border-radius: var(--radius); padding: 12px 32px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; width: 100%; max-width: 280px; }
+  .pwd-btn:active { opacity: 0.85; }
+  .pwd-error { font-size: 12px; color: var(--accent2); margin-top: 8px; min-height: 18px; }
+
   /* RESUME BANNER */
   .resume-banner { display: flex; flex-direction: column; gap: 8px; background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.3); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; }
   .resume-title { font-size: 12px; color: var(--gold); font-weight: 600; }
@@ -123,6 +134,12 @@
   .resume-btn-discard { flex: 1; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface2); color: var(--accent2); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .saved-indicator { font-size: 10px; color: var(--accent); font-weight: 600; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.3s; }
   .saved-indicator.show { opacity: 1; }
+
+  /* SERVE BUTTONS */
+  .srv-group { display: flex; gap: 6px; }
+  .srv-btn { flex: 1; padding: 10px 4px; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; transition: all 0.12s; -webkit-user-select: none; line-height: 1.4; }
+  .srv-btn.on { background: rgba(0,212,160,0.1); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+  .srv-btn:active { transform: scale(0.96); }
 
   /* SERVE ROW */
   .serve-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -193,7 +210,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-<div id="app">
+<div id="pwd-screen" class="pwd-screen">
+  <div class="pwd-logo">🎾</div>
+  <div class="pwd-title">Tenis Stats Pro</div>
+  <div class="pwd-sub">Ingresa la clave para continuar</div>
+  <input class="pwd-input" id="pwd-input" type="password" placeholder="••••••••" maxlength="20"
+    onkeydown="if(event.key==='Enter')checkPassword()" autocomplete="off"/>
+  <button class="pwd-btn" onclick="checkPassword()">Entrar</button>
+  <div class="pwd-error" id="pwd-error"></div>
+</div>
+
+<div id="app" style="display:none">
 
 <!-- SETUP -->
 <div id="s-setup" class="screen active">
@@ -340,26 +367,20 @@
       <button class="pt-btn" data-v="other"><span class="pt-icon">•</span>Otro</button>
     </div>
     <hr class="divider">
-    <div class="serve-row">
-      <div>
-        <div class="label">Servicio</div>
-        <select id="sel-srv">
-          <option value="1st">1.° servicio</option>
-          <option value="2nd">2.° servicio</option>
-          <option value="na">N/A (resto)</option>
-        </select>
-      </div>
-      <div>
-        <div class="label">Zona de golpe</div>
-        <select id="sel-zone">
-          <option value="">— Sin especificar</option>
-          <option value="fh">Derecha (FH)</option>
-          <option value="bh">Revés (BH)</option>
-          <option value="body">Cuerpo</option>
-          <option value="net">Red</option>
-          <option value="overhead">Smash/volea</option>
-        </select>
-      </div>
+    <div class="label">Servicio</div>
+    <div class="srv-group" id="srv-group">
+      <button class="srv-btn on" data-v="1st" onclick="setSrv(this)">🎾 1° saque</button>
+      <button class="srv-btn" data-v="2nd" onclick="setSrv(this)">🎾 2° saque</button>
+    </div>
+    <hr class="divider">
+    <div class="label">Tipo de golpe</div>
+    <div class="srv-group" id="zone-group" style="flex-wrap:wrap;">
+      <button class="srv-btn on" data-v="" onclick="setZoneBtn(this)" style="flex:0 0 auto;">— Zona</button>
+      <button class="srv-btn" data-v="fh" onclick="setZoneBtn(this)" style="flex:0 0 auto;">Derecha</button>
+      <button class="srv-btn" data-v="bh" onclick="setZoneBtn(this)" style="flex:0 0 auto;">Revés</button>
+      <button class="srv-btn" data-v="body" onclick="setZoneBtn(this)" style="flex:0 0 auto;">Cuerpo</button>
+      <button class="srv-btn" data-v="net" onclick="setZoneBtn(this)" style="flex:0 0 auto;">Red</button>
+      <button class="srv-btn" data-v="overhead" onclick="setZoneBtn(this)" style="flex:0 0 auto;">Smash</button>
     </div>
   </div>
 
@@ -432,6 +453,36 @@
 </div>
 
 <script>
+// ── PASSWORD ─────────────────────────────────────────────────────────────────
+const PWD_KEY = 'tenis_auth';
+const PWD_HASH = 'Q09uaTIxMDM='; // ofuscada, no es seguridad criptográfica
+
+function checkPassword(){
+  const val = document.getElementById('pwd-input').value;
+  if(btoa(val) === PWD_HASH){
+    sessionStorage.setItem(PWD_KEY, '1');
+    document.getElementById('pwd-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('pwd-error').textContent = '';
+  } else {
+    document.getElementById('pwd-error').textContent = 'Clave incorrecta';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function initAuth(){
+  if(sessionStorage.getItem(PWD_KEY) === '1'){
+    document.getElementById('pwd-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    setTimeout(()=>document.getElementById('pwd-input').focus(), 300);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initAuth);
+
+// ── CORE ──────────────────────────────────────────────────────────────────────
 const PT_LABELS = {ace:'Ace',winner:'Winner',forced:'Error forzado',unforced:'Error no forzado',dfault:'Doble falta',other:'Otro'};
 let cfg={}, st={}, pts=[], histStack=[];
 let prevScreen = 's-setup';
@@ -592,8 +643,8 @@ function updateSB(){
 function awardPoint(winner){
   if(st.over)return;
   const ptType=document.querySelector('#pt-grid .pt-btn.on')?.dataset.v||'other';
-  const srv=document.getElementById('sel-srv').value;
-  const zone=document.getElementById('sel-zone').value;
+  const srv=document.querySelector('#srv-group .srv-btn.on')?.dataset.v||'1st';
+  const zone=document.querySelector('#zone-group .srv-btn.on')?.dataset.v||'';
   histStack.push(JSON.parse(JSON.stringify(st)));
   pts.push({set:st.cur,winner,ptType,srv,zone,server:st.server,ts:Date.now()});
   const s=st; const c=cfg; const gp=s.gp;
@@ -1035,6 +1086,9 @@ async function doAIAnalysis(type, setIndex){
     const prompt = buildPrompt(type, setIndex);
     const text = await callClaude(prompt, key);
 
+    // Guardar en GitHub
+    const ghSaveMsg = await saveToGitHub(type, setIndex, text);
+
     // Formatear markdown básico
     const formatted = text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -1050,6 +1104,7 @@ async function doAIAnalysis(type, setIndex){
         <span style="font-size:18px">🤖</span>
         <span class="ai-panel-title">Análisis</span>
         <span class="ai-panel-badge" style="background:rgba(245,200,66,0.15);color:${badgeColor}">${badgeText}</span>
+        ${ghSaveMsg ? `<span class="ai-panel-badge" style="background:rgba(0,212,160,0.1);color:var(--accent);margin-left:4px">✓ guardado</span>` : ''}
       </div>
       <div class="ai-content">${formatted}</div>
     </div>`;
@@ -1061,6 +1116,100 @@ async function doAIAnalysis(type, setIndex){
   }
 }
 
+// ── GITHUB SAVE ───────────────────────────────────────────────────────────────
+const GH_OWNER  = 'paaolivares';
+const GH_REPO   = 'tenis-stats';
+const GH_TOKEN  = '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';
+const GH_BRANCH = 'main';
+
+function buildMarkdown(type, setIndex, text){
+  const c = cfg;
+  const date = new Date().toLocaleDateString('es-CL');
+  const time = new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'});
+  const score = st.sets.slice(0, st.cur+1).map(x=>x.join('-')).join(' / ');
+  const typeLabel = type==='match' ? 'Partido completo' : `Set ${(setIndex||0)+1}`;
+
+  return `# Análisis — ${typeLabel}
+## ${c.players[0]} vs ${c.players[1]}
+**Fecha:** ${date} ${time}  
+**Resultado:** ${score}  
+**Superficie:** ${c.surface}  
+**Formato:** ${c.format}  
+
+---
+
+${text}
+
+---
+*Generado con Tenis Stats Pro*`;
+}
+
+function buildGHPath(type, setIndex){
+  const c = cfg;
+  const date = new Date().toISOString().slice(0,10);
+  const p0 = c.players[0].replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+  const p1 = c.players[1].replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+  const folder = `partidos/${date}_${p0}_vs_${p1}`;
+  const file = type==='match' ? 'partido_completo.md' : `set${(setIndex||0)+1}_analisis.md`;
+  return `${folder}/${file}`;
+}
+
+async function saveToGitHub(type, setIndex, text){
+  try {
+    const path = buildGHPath(type, setIndex);
+    const content = buildMarkdown(type, setIndex, text);
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+
+    // Verificar si el archivo ya existe (para obtener su SHA)
+    let sha = null;
+    try {
+      const check = await fetch(url, {
+        headers: {
+          'Authorization': `token ${GH_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        }
+      });
+      if(check.ok){
+        const existing = await check.json();
+        sha = existing.sha;
+      }
+    } catch(e){}
+
+    const body = {
+      message: `Análisis: ${type==='match'?'partido completo':'set '+(setIndex+1)} — ${cfg.players[0]} vs ${cfg.players[1]}`,
+      content: encoded,
+      branch: GH_BRANCH,
+    };
+    if(sha) body.sha = sha;
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${GH_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    });
+
+    return res.ok;
+  } catch(e){
+    console.warn('GitHub save failed:', e);
+    return false;
+  }
+}
+
+function setSrv(btn){
+  document.querySelectorAll('#srv-group .srv-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function setZoneBtn(btn){
+  document.querySelectorAll('#zone-group .srv-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
 function exportJSON(){
   const data={config:cfg,sets:st.sets.slice(0,st.cur+1),points:pts,stats:buildStats().rows.map(r=>({label:r.label,p1:r.v[0],p2:r.v[1]}))};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
@@ -1070,7 +1219,7 @@ function exportJSON(){
   a.click();
 }
 
-function exportExcel(){
+async function exportExcel(){
   const c=cfg; const s=st; const p0=c.players[0], p1=c.players[1];
   const {rows,bySet}=buildStats();
   const fname=`tenis_${p0}_vs_${p1}_${new Date().toISOString().slice(0,10)}.xlsx`;
@@ -1134,7 +1283,7 @@ function exportExcel(){
   // ── Hoja 4: Log punto a punto ────────────────────────────────────────────
   const ZONE_L={fh:'Derecha (FH)',bh:'Revés (BH)',body:'Cuerpo',net:'Red',overhead:'Smash/volea','':{toString:()=>''}};
   const SRV_L={'1st':'1° servicio','2nd':'2° servicio','na':'N/A (resto)'};
-  const logHeader=['#','Set','Juego','Ganador','Servidor','Tipo de punto','Servicio','Zona','Hora'];
+  const logHeader=['#','Set','Juego','Ganador','Servidor','Tipo de punto','Servicio','Tipo de golpe','Hora'];
   const logRows=[logHeader];
   // track game count per set
   const gameCounts=[0,0,0,0,0];
@@ -1157,8 +1306,54 @@ function exportExcel(){
   ws4['!cols']=[{wch:5},{wch:6},{wch:7},{wch:16},{wch:16},{wch:20},{wch:16},{wch:16},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws4, 'Log de puntos');
 
-  // ── Descargar ────────────────────────────────────────────────────────────
+  // ── Descargar localmente ─────────────────────────────────────────────────
   XLSX.writeFile(wb, fname);
+
+  // ── Subir a GitHub ────────────────────────────────────────────────────────
+  try {
+    const wbout = XLSX.write(wb, { bookType:'xlsx', type:'base64' });
+    const date = new Date().toISOString().slice(0,10);
+    const p0 = cfg.players[0].replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+    const p1 = cfg.players[1].replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+    const folder = `partidos/${date}_${p0}_vs_${p1}`;
+    const path = `${folder}/estadisticas.xlsx`;
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+
+    // Verificar si ya existe
+    let sha = null;
+    try {
+      const check = await fetch(url, {
+        headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if(check.ok){ const ex = await check.json(); sha = ex.sha; }
+    } catch(e){}
+
+    const body = {
+      message: `Estadísticas Excel: ${cfg.players[0]} vs ${cfg.players[1]}`,
+      content: wbout,
+      branch: GH_BRANCH,
+    };
+    if(sha) body.sha = sha;
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${GH_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    });
+
+    if(res.ok){
+      // Mostrar confirmación breve
+      const toast = document.createElement('div');
+      toast.textContent = '✓ Excel guardado en GitHub';
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00d4a0;color:#000;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;font-family:DM Sans,sans-serif;';
+      document.body.appendChild(toast);
+      setTimeout(()=>toast.remove(), 3000);
+    }
+  } catch(e){ console.warn('GitHub Excel upload failed:', e); }
 }
 </script>
 </body>
