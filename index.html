@@ -670,7 +670,7 @@ function buildStats(){
   pts.forEach(p=>{
     rows[0].v[p.winner]++;
     if(p.ptType==='ace')rows[1].v[p.winner]++;
-    if(p.ptType==='dfault')rows[2].v[p.winner]++;
+    if(p.ptType==='dfault')rows[2].v[p.server]++;  // doble falta → servidor que cometió el error
     if(p.ptType==='winner')rows[3].v[p.winner]++;
     if(p.ptType==='unforced')rows[4].v[1-p.winner]++;
     if(p.ptType==='forced')rows[5].v[1-p.winner]++;
@@ -679,7 +679,7 @@ function buildStats(){
     if(p.set<bySet.length){
       bySet[p.set][0].v[p.winner]++;
       if(p.ptType==='ace')bySet[p.set][1].v[p.winner]++;
-      if(p.ptType==='dfault')bySet[p.set][2].v[p.winner]++;
+      if(p.ptType==='dfault')bySet[p.set][2].v[p.server]++;
       if(p.ptType==='winner')bySet[p.set][3].v[p.winner]++;
       if(p.ptType==='unforced')bySet[p.set][4].v[1-p.winner]++;
       if(p.ptType==='forced')bySet[p.set][5].v[1-p.winner]++;
